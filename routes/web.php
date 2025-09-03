@@ -8,17 +8,26 @@ use App\Http\Controllers\AdminController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Models\Slot;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
-// Home
+// Home (Welcome page)
 Route::get('/', function () {
     return view('welcome');
 });
 
-// User Parking Slots (only for authenticated users)
-Route::get('/parking', function () {
-    $slots = Slot::all(); // Fetch from DB as Eloquent models
+// Guest-accessible parking slots
+Route::get('/parking-public', function () {
+    $slots = Slot::all();
     return view('parkingSlots', compact('slots'));
-})->middleware('auth')->name('user.parking');
+})->name('parking.slots');
+
+// Authenticated User Parking Slots
+Route::middleware('auth')->group(function () {
+    Route::get('/parking', function () {
+        $slots = Slot::all();
+        return view('parkingSlots', compact('slots'));
+    })->name('user.parking');
+});
 
 // Dashboard for regular users
 Route::get('/dashboard', function () {
@@ -74,6 +83,12 @@ Route::middleware(['auth', AdminMiddleware::class])
         Route::get('/parking-slots', [AdminController::class, 'parkingSlots'])->name('admin.parkingSlots');
         Route::post('/parking-slots/add', [AdminController::class, 'addSlot'])->name('admin.parkingSlots.add');
     });
+
+// Logout for regular users
+Route::post('/logout', function () {
+    Auth::logout();
+    return redirect('/'); // redirect to welcome page
+})->name('logout');
 
 // Admin logout
 Route::post('/admin/logout', function () {

@@ -12,14 +12,16 @@ class Booking extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'slot_number',
-        'car_number',
-        'driver_license',
-        'start_time',
-        'hours',
-        'is_paid',
-        'payment_method',
+         'user_id',
+    'slot_number',
+    'car_number',
+    'driver_license',
+    'start_time',
+    'end_time',   // ✅ add this
+    'hours',
+    'is_paid',
+    'payment_method',
+    'status',
     ];
 
     // Relation to User

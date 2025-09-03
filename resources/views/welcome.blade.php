@@ -348,6 +348,183 @@
     <a href="{{ auth()->check() ? url('/parking') : url('/login') }}">Get Started</a>
   </div>
 
+<!-- Parking Packages Section -->
+<!-- Parking Packages Section -->
+<section class="packages">
+  <h2 class="text-center">🚗 Parking Packages</h2>
+  <div class="package-container">
+
+    <!-- Two-Wheeler Package -->
+    <div class="package-card">
+      <h4>🏍️ Two-Wheeler</h4>
+      <ul>
+        <li>⏰ 1 Hour - <span>20 BDT</span></li>
+        <li>⏰ 2 Hours - <span>35 BDT</span></li>
+        <li>🌙 Half Day (12 hrs) - <span>100 BDT</span></li>
+        <li>🕛 24 Hours - <span>150 BDT</span></li>
+      </ul>
+      <a href="{{ route('user.parking') }}" class="btn-book">Book Now</a>
+    </div>
+
+    <!-- Four-Wheeler Package -->
+    <div class="package-card">
+      <h4>🚘 Four-Wheeler</h4>
+      <ul>
+        <li>⏰ 1 Hour - <span>50 BDT</span></li>
+        <li>⏰ 2 Hours - <span>90 BDT</span></li>
+        <li>🌙 Half Day (12 hrs) - <span>250 BDT</span></li>
+        <li>🕛 24 Hours - <span>400 BDT</span></li>
+      </ul>
+      <a href="{{ route('user.parking') }}" class="btn-book">Book Now</a>
+    </div>
+
+    <!-- Two-Wheeler Monthly Subscription -->
+    <div class="package-card">
+      <h4>📅 🏍️ Two-Wheeler Monthly</h4>
+      <ul>
+        <li>✔️ Unlimited access</li>
+        <li>✔️ Priority Slots</li>
+        <li>💳 Fee - <span>3000 BDT</span></li>
+      </ul>
+      <a href="{{ route('user.parking') }}" class="btn-book">Subscribe</a>
+    </div>
+
+    <!-- Four-Wheeler Monthly Subscription -->
+    <div class="package-card">
+      <h4>📅 🚘 Four-Wheeler Monthly</h4>
+      <ul>
+        <li>✔️ Unlimited access</li>
+        <li>✔️ Priority Slots</li>
+        <li>💳 Fee - <span>6000 BDT</span></li>
+      </ul>
+      <a href="{{ route('user.parking') }}" class="btn-book">Subscribe</a>
+    </div>
+
+    <!-- VIP Reserved Parking -->
+    <div class="package-card">
+      <h4>⭐ VIP Reserved</h4>
+      <ul>
+        <li>🚘 Reserved Spot</li>
+        <li>⏱️ 24/7 Access</li>
+        <li>🔒 Security Priority</li>
+        <li>💳 Monthly Fee - <span>10,000 BDT</span></li>
+      </ul>
+      <a href="{{ route('user.parking') }}" class="btn-book">Reserve Now</a>
+    </div>
+
+    <!-- Weekend Special -->
+    <div class="package-card">
+      <h4>🎉 Weekend Special</h4>
+      <ul>
+        <li>🏍️ Two-Wheeler - <span>100 BDT</span></li>
+        <li>🚘 Four-Wheeler - <span>250 BDT</span></li>
+        <li>📅 Saturday & Sunday</li>
+        <li>🕛 24 Hours Valid</li>
+      </ul>
+      <a href="{{ route('user.parking') }}" class="btn-book">Grab Offer</a>
+    </div>
+
+  </div>
+</section>
+
+
+<style>
+/* Package Section */
+.packages {
+  padding: 60px 20px;
+  background: #fff;
+}
+
+.packages h2 {
+  font-size: 32px;
+  margin-bottom: 40px;
+  font-weight: bold;
+  color: #0083b0;
+}
+
+.package-container {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap; /* so on mobile they stack */
+}
+
+.package-card {
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 30px;
+  width: 320px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.package-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+}
+
+.package-card h4 {
+  font-size: 22px;
+  margin-bottom: 15px;
+  color: #00b4db;
+}
+
+.package-card ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.package-card ul li {
+  padding: 8px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.package-card ul li span {
+  font-weight: bold;
+  color: #000;
+}
+
+.btn-book {
+  display: inline-block;
+  padding: 12px 25px;
+  background: #00b4db;
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 50px;
+  transition: 0.3s;
+}
+
+.btn-book:hover {
+  background: #0083b0;
+}
+</style>
+
+
+
+<!-- Extra Styling -->
+<style>
+    .package-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .package-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+</style>
+
+
+
+
+
+
+
+
+
+
   <!-- About Section -->
   <section class="about">
     <h2>About Our System</h2>

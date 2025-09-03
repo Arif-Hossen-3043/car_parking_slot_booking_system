@@ -75,10 +75,11 @@
         <label for="driver_license">Driver License No</label>
         <input type="text" name="driver_license" id="driver_license" required>
 
-        <label for="start_time">Time of Parking</label>
-        <input type="time" name="start_time" id="start_time" required>
+      <label for="start_time">Time of Parking</label>
+    <input type="datetime-local" name="start_time" id="start_time" required>
 
-        <label for="hours">Number of Minutes</label>
+
+        <label for="hours">Number of Hours</label>
         <input type="number" name="hours" id="hours" min="1" required>
 
         <button type="submit">Reserve Slot</button>

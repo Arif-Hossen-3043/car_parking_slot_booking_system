@@ -52,27 +52,64 @@ class AdminController extends Controller
         return view('layouts.bookings', compact('bookings'));
     }
 
-    // Show parking slots to admin
-    public function parkingSlots()
+    // Show parking slots (with optional vehicle_type filter)
+    public function parkingSlots(Request $request)
     {
-        $slots = Slot::all(); // Now fetch from DB
+        $query = Slot::query();
+
+        if ($request->has('vehicle_type') && $request->vehicle_type) {
+            $query->where('vehicle_type', $request->vehicle_type);
+        }
+
+        $slots = $query->get();
+
         return view('parkingSlots', compact('slots'));
     }
 
-    // Add a new slot dynamically
-  public function addSlot()
-{
-    $lastSlot = Slot::orderBy('id', 'desc')->first();
-    $newNumber = $lastSlot ? ((int) filter_var($lastSlot->slot_number, FILTER_SANITIZE_NUMBER_INT)) + 1 : 1;
+    // Add a new slot dynamically (unique per vehicle_type)
+    public function addSlot(Request $request)
+    {
+        $request->validate([
+            'vehicle_type' => 'required|in:two_wheeler,four_wheeler',
+        ]);
 
-    Slot::create([
-        'slot_number' => 'S'.$newNumber,
-        'is_booked' => false, // boolean instead of 'status'
-    ]);
+        // Prefix based on vehicle type
+        $prefix = $request->vehicle_type === 'two_wheeler' ? 'T' : 'F';
 
-    return redirect()->back()->with('success', "Slot S{$newNumber} added successfully!");
-}
+        // Find last slot for this vehicle type
+        $lastSlot = Slot::where('vehicle_type', $request->vehicle_type)
+                        ->orderBy('id', 'desc')
+                        ->first();
 
+        if ($lastSlot) {
+            // Extract number from slot_number (T1, F3, etc.)
+            $lastNumber = (int) filter_var($lastSlot->slot_number, FILTER_SANITIZE_NUMBER_INT);
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
 
+        $slotNumber = $prefix . $nextNumber;
 
+        try {
+            // Ensure slot_number + vehicle_type pair is unique
+            $exists = Slot::where('vehicle_type', $request->vehicle_type)
+                          ->where('slot_number', $slotNumber)
+                          ->exists();
+
+            if ($exists) {
+                return redirect()->back()->with('error', "Slot {$slotNumber} already exists for this vehicle type!");
+            }
+
+            Slot::create([
+                'slot_number' => $slotNumber,
+                'vehicle_type' => $request->vehicle_type,
+                'is_booked'   => false,
+            ]);
+
+            return redirect()->back()->with('success', "Slot {$slotNumber} added successfully!");
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', "Error adding slot: " . $e->getMessage());
+        }
+    }
 }

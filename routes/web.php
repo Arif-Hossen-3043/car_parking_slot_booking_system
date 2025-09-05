@@ -28,6 +28,9 @@ Route::middleware('auth')->group(function () {
         return view('parkingSlots', compact('slots'));
     })->name('user.parking');
 });
+//checking avaiblity of the slots 
+Route::get('/slot-availability/{slot}', [App\Http\Controllers\BookingController::class, 'checkAvailability'])
+    ->name('slot.availability');
 
 // Dashboard for regular users
 Route::get('/dashboard', function () {

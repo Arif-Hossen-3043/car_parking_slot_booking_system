@@ -56,6 +56,10 @@
                     <form action="{{ url('/book/'.$slot->slot_number) }}" method="get" class="mt-2">
                         <button type="submit" class="btn btn-light btn-sm">Book Slot</button>
                     </form>
+                    {{-- Check Availability button for every slot --}}
+<form action="{{ url('/slot-availability/'.$slot->slot_number) }}" method="get" class="mt-2">
+    <button type="submit" class="btn btn-info btn-sm">Check Availability</button>
+</form>
                 @endif
             </div>
         @empty

@@ -10,62 +10,71 @@ use Carbon\Carbon;
 class BookingController extends Controller
 {
     // Store a new booking
-public function store(Request $request, $slot)
-{
-    $request->validate([
-        'car_number' => 'required|string|max:20',
-        'driver_license' => 'required|string|max:50',
-        'start_time' => 'required|date',
-        'hours' => 'required|integer|min:1',
-    ]);
+    public function store(Request $request, $slot)
+    {
+        $request->validate([
+            'car_number' => 'required|string|max:20',
+            'driver_license' => 'required|string|max:50',
+            'start_time' => 'required|date',
+            'hours' => 'required|integer|min:1',
+        ]);
 
-    $userId = auth()->id();
+        $userId = auth()->id();
 
-    // Check if user already has a booking
-    $existingBooking = Booking::where('user_id', $userId)->first();
-    if ($existingBooking) {
-        return redirect()->route('myBookedSlot')->with('info', 'You already have a booked slot.');
+        // Check if user already has a booking
+        $existingBooking = Booking::where('user_id', $userId)->first();
+        if ($existingBooking) {
+            return redirect()->route('myBookedSlot')->with('info', 'You already have a booked slot.');
+        }
+
+        // Compute booking times
+        $startTime = Carbon::parse($request->start_time);
+
+        // 🚨 Prevent booking in the past
+        if ($startTime->isPast()) {
+            return redirect()->back()->with('conflict', 'You cannot book a slot in the past.');
+        }
+
+        // user enters hours -> we add hours
+        $endTime = $startTime->copy()->addHours((int) $request->hours);
+
+        // 🚨 Prevent if endTime also ends in the past
+        if ($endTime->isPast()) {
+            return redirect()->back()->with('conflict', 'The booking duration ends in the past.');
+        }
+
+        // Check if this slot is already booked in this time range
+        $conflict = Booking::where('slot_number', $slot)
+            ->where(function($q) use ($startTime, $endTime) {
+                $q->whereBetween('start_time', [$startTime, $endTime])
+                  ->orWhereBetween('end_time', [$startTime, $endTime])
+                  ->orWhere(function($q2) use ($startTime, $endTime) {
+                      $q2->where('start_time', '<', $startTime)
+                         ->where('end_time', '>', $endTime);
+                  });
+            })
+            ->where('status', '!=', 'cancelled')
+            ->exists();
+
+        if ($conflict) {
+            return redirect()->back()->with('conflict', 'This slot is already booked for the selected time.');
+        }
+
+        // Create booking
+        $booking = Booking::create([
+            'user_id' => $userId,
+            'slot_number' => $slot,
+            'car_number' => $request->car_number,
+            'driver_license' => $request->driver_license,
+            'start_time' => $startTime,
+            'end_time'   => $endTime,
+            'hours' => $request->hours,
+            'is_paid' => false,
+            'status' => 'pending'
+        ]);
+
+        return redirect()->back()->with('success', 'Your booking is done!');
     }
-
-    // Compute booking times
-    $startTime = Carbon::parse($request->start_time);
-// user enters hours -> we add hours
-$endTime = $startTime->copy()->addHours((int) $request->hours);
-
-    // Check if this slot is already booked in this time range
-    $conflict = Booking::where('slot_number', $slot)
-        ->where(function($q) use ($startTime, $endTime) {
-            $q->whereBetween('start_time', [$startTime, $endTime])
-              ->orWhereBetween('end_time', [$startTime, $endTime])
-              ->orWhere(function($q2) use ($startTime, $endTime) {
-                  $q2->where('start_time', '<', $startTime)
-                     ->where('end_time', '>', $endTime);
-              });
-        })
-        ->where('status', '!=', 'cancelled')
-        ->exists();
-
-    if ($conflict) {
-        return redirect()->back()->with('conflict', 'This slot is already booked for the selected time.');
-    }
-
-    // Create booking
-    $booking = Booking::create([
-        'user_id' => $userId,
-        'slot_number' => $slot,
-        'car_number' => $request->car_number,
-        'driver_license' => $request->driver_license,
-        'start_time' => $startTime,
-        'end_time'   => $endTime,
-        'hours' => $request->hours,
-        'is_paid' => false,
-        'status' => 'pending'
-    ]);
-
-    return redirect()->back()->with('success', 'Your booking is done!');
-}
-
-
 
     // Show the booked slot for the logged-in user
     public function myBookedSlot()
@@ -90,7 +99,7 @@ $endTime = $startTime->copy()->addHours((int) $request->hours);
         $booking = Booking::findOrFail($id);
 
         if ($booking->user_id != auth()->id()) {
-            return back()->with('error', 'Unauthorized action.');
+            return back()->with('error', 'Unauthorized action or error Credentials.');
         }
 
         $bookingTime = Carbon::parse($booking->start_time);
@@ -118,5 +127,17 @@ $endTime = $startTime->copy()->addHours((int) $request->hours);
         ]);
 
         return back()->with('status', "Booking cancelled! Refund: $$refund");
+    }
+
+    // Check availability function
+    public function checkAvailability($slot)
+    {
+        // Fetch all upcoming bookings for this slot
+        $bookings = Booking::where('slot_number', $slot)
+            ->where('status', '!=', 'cancelled')
+            ->orderBy('start_time', 'asc')
+            ->get();
+
+        return view('slotAvailability', compact('slot', 'bookings'));
     }
 }

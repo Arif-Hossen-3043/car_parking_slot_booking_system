@@ -90,7 +90,7 @@
 @if(session('success'))
 <script>
     alert("{{ session('success') }}"); // Show popup
-    window.location.href = "{{ url('/dashboard') }}"; // Redirect to dashboard
+    window.location.href = "{{ url('/dashboard') }}"; // Redirect to my booked slot 
 </script>
 @endif
 
